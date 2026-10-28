@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Namma Mittai Kadai — POS & Customer App</title>
+<style>
+:root{--red:#9f1239;--orange:#f97316;--cream:#fff7ed;--ink:#3b1824;--green:#15803d}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Tamil",sans-serif;background:#fff7ed;color:var(--ink)}
+header{background:linear-gradient(120deg,#881337,#ea580c);color:white;padding:22px 16px;text-align:center}
+header h1{margin:0;font-size:clamp(24px,5vw,38px)}header p{margin:8px 0 0}
+nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;background:#fff;padding:12px;position:sticky;top:0;z-index:3;box-shadow:0 2px 8px #0001}
+button,.tab{border:0;border-radius:12px;padding:12px 15px;background:#fce7d2;color:#7f1d1d;font-weight:bold;cursor:pointer}
+button.primary{background:var(--red);color:white}button.green{background:var(--green);color:white}button:active{transform:scale(.98)}
+main{max-width:1150px;margin:18px auto;padding:0 14px}.panel{background:white;border-radius:18px;padding:18px;margin-bottom:18px;box-shadow:0 4px 18px #7c2d1210}
+h2{margin:0 0 14px;color:#9f1239}h3{margin:8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.product{border:1px solid #fed7aa;border-radius:15px;padding:14px;background:#fffaf5}
+.emoji{font-size:38px}.price{font-size:20px;font-weight:bold;color:#9f1239}
+label{display:block;font-weight:bold;margin:9px 0 5px}input,select,textarea{width:100%;padding:11px;border:1px solid #e7c9b8;border-radius:10px;font:inherit;background:white}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #f3dfd3}th{background:#fff1e6}
+.stat{background:#fff1e6;padding:14px;border-radius:14px}.stat strong{font-size:23px;display:block;margin-top:5px}
+.muted{color:#785b5b;font-size:13px}.hidden{display:none!important}.cartline{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #eee}
+footer{text-align:center;padding:22px;color:#785b5b}
+@media(max-width:520px){nav button{flex:1}table{font-size:13px}th,td{padding:7px}}
+</style>
+</head>
+<body>
+<header><h1>🍬 நம்ம மிட்டாய் கடை</h1><p>Namma Mittai Kadai · POS Billing & Customer Order Demo</p></header>
+<nav>
+<button onclick="show('pos')" class="primary">🧾 கடை பில்லிங்</button>
+<button onclick="show('customer')">🛒 வாடிக்கையாளர் ஆப்</button>
+<button onclick="show('stock')">📦 பொருள் / ஸ்டாக்</button>
+<button onclick="show('orders')">📋 ஆர்டர்கள்</button>
+<button onclick="show('reports')">📊 கணக்கு</button>
+</nav>
+<main>
+<section id="pos" class="view">
+<div class="panel"><h2>🧾 விரைவு பில்லிங்</h2><p class="muted">பொருளைத் தேர்ந்தெடுத்து எடை அல்லது அளவை உள்ளிடுங்கள். தொகை தானாகக் கணக்கிடப்படும்.</p><div id="posProducts" class="grid"></div></div>
+<div class="panel"><h2>தற்போதைய பில்</h2><div id="cart"></div><div class="row"><div><label>வாடிக்கையாளர் பெயர்</label><input id="buyer" placeholder="பெயர் (விருப்பம்)"></div><div><label>பணம் செலுத்தும் முறை</label><select id="payment"><option>Cash</option><option>UPI</option><option>Card</option><option>Credit / பாக்கி</option></select></div></div><p>மொத்தம்: <strong id="total">₹0.00</strong></p><button class="primary" onclick="checkout()">✅ பில் முடிக்க / ஸ்டாக் குறைக்க</button> <button onclick="clearCart()">பில் நீக்கு</button> <button onclick="printBill()">🖨️ Print</button></div>
+</section>
+<section id="customer" class="view hidden">
+<div class="panel"><h2>🛍️ இனிப்புகளை ஆர்டர் செய்யுங்கள்</h2><p>உங்களுக்கு பிடித்த இனிப்புகளைத் தேர்ந்தெடுத்து கார்ட்டில் சேர்க்கவும்.</p><div id="customerProducts" class="grid"></div></div>
+<div class="panel"><h2>உங்கள் கார்ட் / ஆர்டர்</h2><div id="customerCart"></div><div class="row"><div><label>பெயர்</label><input id="custName" placeholder="உங்கள் பெயர்"></div><div><label>மொபைல் எண்</label><input id="custPhone" placeholder="10 இலக்க எண்" inputmode="numeric"></div><div><label>பெறும் முறை</label><select id="fulfil"><option>கடையில் பெற்றுக்கொள்கிறேன்</option><option>வீட்டிற்கு டெலிவரி</option><option>பண்டிகை முன்பதிவு</option></select></div><div><label>தேதி / குறிப்பு</label><input id="custNote" placeholder="தேதி, gift packing குறிப்பு"></div></div><p>மொத்தம்: <strong id="custTotal">₹0.00</strong></p><button class="primary" onclick="placeOrder()">ஆர்டர் பதிவு செய்</button></div>
+</section>
+<section id="stock" class="view hidden"><div class="panel"><h2>📦 பொருள் மற்றும் ஸ்டாக் மேலாண்மை</h2><div class="row"><div><label>பொருள் பெயர்</label><input id="newName" placeholder="எ.கா. Mysore Pak"></div><div><label>விலை / கிலோ (₹)</label><input id="newPrice" type="number" min="0" placeholder="400"></div><div><label>ஸ்டாக் (கிலோ)</label><input id="newStock" type="number" min="0" step=".01" placeholder="10"></div><div><label>வகை</label><select id="newCat"><option>இனிப்பு</option><option>கார வகை</option><option>காம்போ</option></select></div><div><label>காலாவதி தேதி</label><input id="newExpiry" type="date"></div></div><p><button class="primary" onclick="addProduct()">➕ பொருள் சேர்க்கவும்</button></p><div id="stockTable"></div></div></section>
+<section id="orders" class="view hidden"><div class="panel"><h2>📋 ஆர்டர் பட்டியல்</h2><div id="ordersTable"></div></div></section>
+<section id="reports" class="view hidden"><div class="panel"><h2>📊 கடை கணக்கு சுருக்கம்</h2><div class="grid"><div class="stat">இன்றைய விற்பனை<strong id="sales">₹0</strong></div><div class="stat">மொத்த பில்கள் / ஆர்டர்கள்<strong id="count">0</strong></div><div class="stat">ஸ்டாக் மதிப்பு (தோராயம்)<strong id="stockValue">₹0</strong></div><div class="stat">குறைந்த ஸ்டாக் பொருட்கள்<strong id="low">0</strong></div></div><p class="muted">இந்த demo-வில் லாபம் கணக்கிட கொள்முதல் விலை தேவை. உண்மையான Firebase / Google Sheets இணைப்பு அமைக்கப்படவில்லை.</p><button onclick="exportData()">⬇️ தரவை CSV-ஆக பதிவிறக்கு</button> <button onclick="resetDemo()">Demo தரவை மீட்டமை</button></div></section>
+</main><footer>நம்ம மிட்டாய் கடை · Offline demo · தரவு இந்த browser-ல் மட்டும் சேமிக்கப்படும்</footer>
+<script>
+const seed=[
+{id:1,name:'மைசூர் பாக்',price:400,stock:12,cat:'இனிப்பு',emoji:'🟨',expiry:''},
+{id:2,name:'மோட்டிச்சூர் லட்டு',price:360,stock:8,cat:'இனிப்பு',emoji:'🟠',expiry:''},
+{id:3,name:'பால் பேடா',price:520,stock:5,cat:'இனிப்பு',emoji:'🍥',expiry:''},
+{id:4,name:'மிக்சர்',price:220,stock:15,cat:'கார வகை',emoji:'🥨',expiry:''},
+{id:5,name:'முந்திரி பர்ஃபி',price:680,stock:4,cat:'இனிப்பு',emoji:'💚',expiry:''},
+{id:6,name:'பண்டிகை காம்போ பாக்ஸ்',price:850,stock:6,cat:'காம்போ',emoji:'🎁',expiry:''}
+];
+let products=JSON.parse(localStorage.getItem('nmk_products')||'null')||seed;
+let orders=JSON.parse(localStorage.getItem('nmk_orders')||'[]');
+let cart=[],customerCart=[];
+function save(){localStorage.setItem('nmk_products',JSON.stringify(products));localStorage.setItem('nmk_orders',JSON.stringify(orders));renderAll()}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function show(id){document.querySelectorAll('.view').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');renderAll()}
+function card(p,customer=false){return `<div class="product"><div class="emoji">${p.emoji||'🍬'}</div><h3>${p.name}</h3><div class="price">${money(p.price)} / கிலோ</div><p class="muted">ஸ்டாக்: ${p.stock.toFixed(2)} kg</p><label>எடை (கிராம்)</label><input id="${customer?'cw':'pw'}${p.id}" type="number" min="1" max="${Math.floor(p.stock*1000)}" value="250"><button class="primary" style="width:100%;margin-top:8px" onclick="addCart(${p.id},${customer})">கார்ட்டில் சேர்</button></div>`}
+function renderProducts(){posProducts.innerHTML=products.map(p=>card(p)).join('');customerProducts.innerHTML=products.map(p=>card(p,true)).join('')}
+function addCart(id,customer){let p=products.find(x=>x.id===id),field=document.getElementById((customer?'cw':'pw')+id),g=Number(field.value);if(!g||g<=0||g>p.stock*1000){alert('சரியான எடையை உள்ளிடுங்கள். ஸ்டாக் போதவில்லை.');return}let target=customer?customerCart:cart;target.push({id,name:p.name,grams:g,price:p.price,amount:p.price*g/1000});renderCart()}
+function renderCart(){for(let [target,el,totalEl] of [[cart,'cart','total'],[customerCart,'customerCart','custTotal']]){document.getElementById(el).innerHTML=target.length?target.map((x,i)=>`<div class="cartline"><span>${x.name} · ${x.grams}g</span><strong>${money(x.amount)} <button onclick="removeLine(${i},${target===customerCart})">×</button></strong></div>`).join(''):'<p class="muted">இன்னும் பொருட்கள் சேர்க்கப்படவில்லை.</p>';document.getElementById(totalEl).textContent=money(target.reduce((s,x)=>s+x.amount,0))}}
+function removeLine(i,c){(c?customerCart:cart).splice(i,1);renderCart()}
+function clearCart(){cart=[];renderCart()}
+function checkout(){if(!cart.length){alert('முதலில் பொருள் சேர்க்கவும்');return}for(let line of cart){let p=products.find(x=>x.id===line.id);if(p.stock<line.grams/1000){alert(p.name+' ஸ்டாக் போதவில்லை');return}}let total=cart.reduce((s,x)=>s+x.amount,0);cart.forEach(x=>products.find(p=>p.id===x.id).stock-=x.grams/1000);orders.unshift({no:Date.now(),type:'POS பில்',name:buyer.value||'Walk-in',phone:'',items:cart.map(x=>({...x})),total,payment:payment.value,status:'முடிந்தது',date:new Date().toLocaleString('ta-IN')});cart=[];buyer.value='';save();alert('பில் வெற்றிகரமாக பதிவு செய்யப்பட்டது!');}
+function placeOrder(){if(!customerCart.length){alert('கார்ட்டில் பொருள் சேர்க்கவும்');return}if(!custName.value.trim()){alert('உங்கள் பெயரை உள்ளிடவும்');return}let total=customerCart.reduce((s,x)=>s+x.amount,0);orders.unshift({no:Date.now(),type:'Customer Order',name:custName.value,phone:custPhone.value,fulfil:fulfil.value,note:custNote.value,items:customerCart.map(x=>({...x})),total,payment:'செலுத்த வேண்டியது',status:'புதிய ஆர்டர்',date:new Date().toLocaleString('ta-IN')});customerCart=[];save();alert('ஆர்டர் பதிவு செய்யப்பட்டது. இது demo பதிவு மட்டுமே.');}
+function addProduct(){let name=newName.value.trim(),price=Number(newPrice.value),stock=Number(newStock.value);if(!name||price<0||!Number.isFinite(price)||stock<0||!Number.isFinite(stock)){alert('பெயர், விலை, ஸ்டாக் சரியாக உள்ளிடவும்');return}products.push({id:Date.now(),name,price,stock,cat:newCat.value,emoji:newCat.value==='கார வகை'?'🥨':newCat.value==='காம்போ'?'🎁':'🍬',expiry:newExpiry.value});newName.value=newPrice.value=newStock.value=newExpiry.value='';save()}
+function renderStock(){stockTable.innerHTML='<table><thead><tr><th>பொருள்</th><th>விலை/kg</th><th>ஸ்டாக் kg</th><th>Expiry</th><th>செயல்</th></tr></thead><tbody>'+products.map(p=>`<tr><td>${p.name}</td><td>${money(p.price)}</td><td>${p.stock.toFixed(2)}</td><td>${p.expiry||'—'}</td><td><button onclick="editProduct(${p.id})">திருத்து</button> <button onclick="deleteProduct(${p.id})">நீக்கு</button></td></tr>`).join('')+'</tbody></table>'}
+function editProduct(id){let p=products.find(x=>x.id===id),name=prompt('பொருள் பெயர்',p.name);if(name===null)return;let price=prompt('ஒரு கிலோ விலை',p.price);if(price===null)return;let stock=prompt('ஸ்டாக் kg',p.stock);if(stock===null)return;p.name=name.trim()||p.name;p.price=Math.max(0,Number(price)||0);p.stock=Math.max(0,Number(stock)||0);save()}
+function deleteProduct(id){if(confirm('இந்தப் பொருளை நீக்க வேண்டுமா?')){products=products.filter(p=>p.id!==id);save()}}
+function renderOrders(){ordersTable.innerHTML=orders.length?'<table><thead><tr><th>வகை / தேதி</th><th>வாடிக்கையாளர்</th><th>பொருட்கள்</th><th>மொத்தம்</th><th>நிலை</th><th>மாற்று</th></tr></thead><tbody>'+orders.map(o=>`<tr><td>${o.type}<br><small>${o.date}</small></td><td>${o.name}<br>${o.phone||''}</td><td>${o.items.map(i=>i.name+' '+i.grams+'g').join(', ')}</td><td>${money(o.total)}</td><td>${o.status}</td><td><select onchange="setStatus(${o.no},this.value)"><option ${o.status==='புதிய ஆர்டர்'?'selected':''}>புதிய ஆர்டர்</option><option ${o.status==='தயாரிக்கப்படுகிறது'?'selected':''}>தயாரிக்கப்படுகிறது</option><option ${o.status==='தயார்'?'selected':''}>தயார்</option><option ${o.status==='அனுப்பப்பட்டது'?'selected':''}>அனுப்பப்பட்டது</option><option ${o.status==='முடிந்தது'?'selected':''}>முடிந்தது</option></select></td></tr>`).join('')+'</tbody></table>':'<p>இன்னும் ஆர்டர்கள் இல்லை.</p>'}
+function setStatus(no,status){let o=orders.find(x=>x.no===no);if(o)o.status=status;save()}
+function renderReports(){let today=new Date().toLocaleDateString('en-CA');let salesToday=orders.filter(o=>{let d=new Date(o.no).toLocaleDateString('en-CA');return d===today}).reduce((s,o)=>s+o.total,0);sales.textContent=money(salesToday);count.textContent=orders.length;stockValue.textContent=money(products.reduce((s,p)=>s+p.stock*p.price,0));low.textContent=products.filter(p=>p.stock<3).length}
+function renderAll(){renderProducts();renderCart();renderStock();renderOrders();renderReports()}
+function printBill(){let lines=cart.length?cart:customerCart;if(!lines.length){alert('Print செய்ய பில் காலியாக உள்ளது');return}let w=window.open('','_blank','width=380,height=600');if(!w){alert('Print window அனுமதிக்கவும்');return}w.document.write('<html><body style="font-family:monospace;width:280px"><h2>Namma Mittai Kadai</h2><p>பில் / Order</p><hr>'+lines.map(x=>`<p>${x.name} ${x.grams}g<br>${money(x.amount)}</p>`).join('')+'<hr><h3>Total: '+money(lines.reduce((s,x)=>s+x.amount,0))+'</h3><p>நன்றி! மீண்டும் வருக.</p><script>window.print()<\/script></body></html>');w.document.close()}
+function exportData(){let rows=[['OrderNo','Type','Name','Phone','Total','Payment','Status','Date'],...orders.map(o=>[o.no,o.type,o.name,o.phone,o.total,o.payment,o.status,o.date])];let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download='namma-mittai-kadai-orders.csv';a.click();URL.revokeObjectURL(a.href)}
+function resetDemo(){if(confirm('Demo தரவை மீட்டமைக்கவா?')){products=seed.map(x=>({...x}));orders=[];save()}}
+renderAll();
+</script>
+</body></html>
